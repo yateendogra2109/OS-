@@ -7,6 +7,12 @@
 #include "mmu.h"
 #include "proc.h"
 
+#include "spinlock.h"
+extern struct {
+  struct spinlock lock;
+  struct proc proc[NPROC];
+} ptable;
+
 int
 sys_fork(void)
 {
@@ -88,4 +94,24 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+int
+sys_getchildren(void)
+{
+  struct proc *p;
+  struct proc *cur = myproc();
+  int count = 0;
+
+  acquire(&ptable.lock);
+  cprintf("Children PID's are:\n");
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state != UNUSED && p->parent == cur){
+      cprintf("%d\n", p->pid);
+      count++;
+    }
+  }
+  release(&ptable.lock);
+
+  cprintf("No. of Children: %d\n", count);
+  return 0;
 }
