@@ -103,6 +103,12 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
+extern int sys_hello(void);
+extern int sys_helloYou(void);
+extern int sys_getSibling(void);
+extern int sys_welcomeFunction(void);
+extern int sys_welcomeDone(void);
+extern int sys_is_proc_valid(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -126,6 +132,12 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_hello]   sys_hello,
+[SYS_helloYou]   sys_helloYou,
+[SYS_getSibling]   sys_getSibling,
+[SYS_welcomeFunction]   sys_welcomeFunction,
+[SYS_welcomeDone]   sys_welcomeDone,
+[SYS_is_proc_valid] sys_is_proc_valid,
 };
 
 void

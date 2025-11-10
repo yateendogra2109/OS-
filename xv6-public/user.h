@@ -23,6 +23,12 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int hello(void);
+int helloYou(char *);
+int getSibling(void);
+int welcomeFunction(void (*func)());
+int welcomeDone(void);
+int is_proc_valid(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
