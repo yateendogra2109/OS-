@@ -184,6 +184,10 @@ UPROGS=\
 	_zombie\
 	_mytest\
 	_getchildren_test\
+	_test_get_proc_state\
+	_test_proc_fill_name\
+	_test_get_name\
+	
 
 
 

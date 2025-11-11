@@ -30,3 +30,7 @@ SYSCALL(sbrk)
 SYSCALL(sleep)
 SYSCALL(uptime)
 SYSCALL(getchildren)
+SYSCALL(get_proc_state)
+SYSCALL(fill_proc_name)
+SYSCALL(get_name)
+

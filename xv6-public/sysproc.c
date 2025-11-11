@@ -13,6 +13,107 @@ extern struct {
   struct proc proc[NPROC];
 } ptable;
 
+int 
+sys_get_proc_state(void)
+{
+  int pid;
+  char *ubuf;
+  int size;
+  struct proc *p;
+  char *state_str="UNKNOWN";
+  int found = 0;
+
+  if ( argint(0,&pid)<0)
+  return 0;
+  if(argint(2,&size)<0)
+  return 0;
+  if(argptr(1,&ubuf,sizeof(char * ))<0)
+  return 0;
+
+  acquire(&ptable.lock);
+  for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
+  {
+    if(p->pid==pid){
+      found=1;
+      switch(p->state)
+      {
+        case UNUSED : state_str="UNUSED";break;
+        case EMBRYO : state_str="EMBRYO";break;
+        case SLEEPING : state_str="SLEEPING";break;
+        case RUNNABLE: state_str="RUNNABLE";break;
+        case RUNNING : state_str="RUNNING";break;
+        case ZOMBIE : state_str="ZOMBIE";break;
+        default :    state_str = "UNKNOWN"; break ;
+        
+      }
+
+      safestrcpy(ubuf,state_str,size);
+    break;
+      }
+  }
+  release(&ptable.lock);
+  if(found)
+  return 1;
+  else return 0;
+
+
+}
+
+int 
+sys_fill_proc_name(void)
+{
+  int pid ;
+  char *uname;
+  struct proc *p;
+  int found =0;
+  if(argint(0,&pid)<0)
+  return 0;
+   if (argptr(1, &uname, sizeof(char *)) < 0)
+        return 0;
+
+     acquire(&ptable.lock);
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->pid == pid) {
+            safestrcpy(p->custom_name, uname, sizeof(p->custom_name));
+            found = 1;
+            break;
+        }
+    }
+    release ( &ptable.lock);
+    return found;
+
+}
+int
+sys_get_name(void)
+{
+    int pid;
+    char *ubuf;
+    int size;
+    struct proc *p;
+    int found = 0;
+
+    // Fetch syscall arguments
+    if (argint(0, &pid) < 0)
+        return 0;
+    if (argptr(1, &ubuf, sizeof(char *)) < 0)
+        return 0;
+    if (argint(2, &size) < 0)
+        return 0;
+
+    acquire(&ptable.lock);
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->pid == pid) {
+            safestrcpy(ubuf, p->custom_name, size);
+            found = 1;
+            break;
+        }
+    }
+    release(&ptable.lock);
+
+    return found;
+}
+
+
 int
 sys_fork(void)
 {

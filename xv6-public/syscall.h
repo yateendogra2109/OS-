@@ -20,4 +20,7 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
-#define SYS_getchildren 22
+#define SYS_getchildren 28
+#define SYS_get_proc_state 29
+#define SYS_fill_proc_name 30
+#define SYS_get_name 31

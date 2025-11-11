@@ -2,6 +2,7 @@ struct stat;
 struct rtcdate;
 
 // system calls
+
 int fork(void);
 int exit(void) __attribute__((noreturn));
 int wait(void);
@@ -39,3 +40,8 @@ void free(void*);
 int atoi(const char*);
 
 void getchildren(void);
+
+int get_proc_state(int pid, char * buf,int size);
+
+int fill_proc_name(int pid, char *name );
+int get_name(int pid, char *buf, int size);
