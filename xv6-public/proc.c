@@ -203,6 +203,11 @@ fork(void)
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
+  if(curproc->welcome_func!=0){
+    np->eip_temp = np->tf->eip;
+    np->tf->eip = (uint)curproc->welcome_func;
+  }
+
   for(i = 0; i < NOFILE; i++)
     if(curproc->ofile[i])
       np->ofile[i] = filedup(curproc->ofile[i]);
@@ -531,4 +536,85 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+void find_siblings(void){
+  struct proc *process = myproc();
+  struct proc *p;
+  struct proc *last_p = &ptable.proc[NPROC];
+  int count = 0;
+
+  cprintf("Sibling PID’s are:\n");
+
+  acquire(&ptable.lock);
+
+  for(p=ptable.proc;p<last_p;p++){
+    if(p->state == UNUSED){
+      continue;
+    }
+
+    if(p == process){
+      continue;
+    }
+
+    if(process->parent == p->parent){
+      cprintf("%d\n",p->pid);
+      count++;
+    }
+  }
+  release(&ptable.lock);
+
+  cprintf("No. of Siblings: %d\n",count);
+
+}
+
+int check_valid(int pid){
+  
+  struct proc *p;
+  struct proc *last_p = &ptable.proc[NPROC];
+
+  acquire(&ptable.lock);
+
+  for(p=ptable.proc;p<last_p;p++){
+    if(p->state == UNUSED){
+      continue;
+    }
+
+    if(p->pid == pid){
+
+      if(p->state==SLEEPING || p->state ==RUNNING || p->state==RUNNABLE){
+         release(&ptable.lock);
+         return 1;
+      }
+      else{
+        release(&ptable.lock);
+        return 0;
+      }
+
+    }
+  }
+
+  release(&ptable.lock);
+  
+  return 0;
+}
+
+int findchildren(void)
+{
+  struct proc *p;
+  struct proc *cur = myproc();
+  int count = 0;
+
+  acquire(&ptable.lock);
+  cprintf("Children PID's are:\n");
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state != UNUSED && p->parent == cur){
+      cprintf("%d\n", p->pid);
+      count++;
+    }
+  }
+  release(&ptable.lock);
+
+  cprintf("No. of Children: %d\n", count);
+  return 0;
 }

@@ -48,8 +48,14 @@ struct proc {
   int killed;                  // If non-zero, have been killed
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
+<<<<<<< HEAD
   char name[16];  
   char custom_name[16];             // Process name (debugging)
+=======
+  char name[16];               // Process name (debugging)
+void* welcome_func;
+  uint eip_temp;
+>>>>>>> 76556f9daa06642e51f91332ba6ee681f8e83608
 };
 
 // Process memory is laid out contiguously, low addresses first:
@@ -57,3 +63,9 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+
+
+// Some newly added functions
+void find_siblings(void);
+int check_valid(int);
+int findchildren(void);

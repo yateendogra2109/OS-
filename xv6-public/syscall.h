@@ -20,7 +20,16 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+<<<<<<< HEAD
 #define SYS_getchildren 28
 #define SYS_get_proc_state 29
 #define SYS_fill_proc_name 30
 #define SYS_get_name 31
+=======
+#define SYS_hello  22
+#define SYS_helloYou 23
+#define SYS_getSibling 24
+#define SYS_welcomeFunction 25
+#define SYS_welcomeDone 26
+#define SYS_is_proc_valid 27
+>>>>>>> 76556f9daa06642e51f91332ba6ee681f8e83608

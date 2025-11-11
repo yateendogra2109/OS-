@@ -29,8 +29,17 @@ SYSCALL(getpid)
 SYSCALL(sbrk)
 SYSCALL(sleep)
 SYSCALL(uptime)
+<<<<<<< HEAD
 SYSCALL(getchildren)
 SYSCALL(get_proc_state)
 SYSCALL(fill_proc_name)
 SYSCALL(get_name)
 
+=======
+SYSCALL(hello)
+SYSCALL(helloYou)
+SYSCALL(getSibling)
+SYSCALL(welcomeFunction)
+SYSCALL(welcomeDone)
+SYSCALL(is_proc_valid)
+>>>>>>> 76556f9daa06642e51f91332ba6ee681f8e83608
