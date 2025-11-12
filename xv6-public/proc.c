@@ -111,6 +111,8 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+  p->num_syscall = 0;
+  p->num_timer_interrupts = 0;
 
   return p;
 }
@@ -202,11 +204,6 @@ fork(void)
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
-
-  if(curproc->welcome_func!=0){
-    np->eip_temp = np->tf->eip;
-    np->tf->eip = (uint)curproc->welcome_func;
-  }
 
   for(i = 0; i < NOFILE; i++)
     if(curproc->ofile[i])
@@ -537,84 +534,77 @@ procdump(void)
     cprintf("\n");
   }
 }
+// ----------------------------------------------
+// pstree() system call implementation
+// ----------------------------------------------
 
-void find_siblings(void){
-  struct proc *process = myproc();
-  struct proc *p;
-  struct proc *last_p = &ptable.proc[NPROC];
-  int count = 0;
-
-  cprintf("Sibling PID’s are:\n");
-
-  acquire(&ptable.lock);
-
-  for(p=ptable.proc;p<last_p;p++){
-    if(p->state == UNUSED){
-      continue;
-    }
-
-    if(p == process){
-      continue;
-    }
-
-    if(process->parent == p->parent){
-      cprintf("%d\n",p->pid);
-      count++;
-    }
-  }
-  release(&ptable.lock);
-
-  cprintf("No. of Siblings: %d\n",count);
-
-}
-
-int check_valid(int pid){
-  
-  struct proc *p;
-  struct proc *last_p = &ptable.proc[NPROC];
-
-  acquire(&ptable.lock);
-
-  for(p=ptable.proc;p<last_p;p++){
-    if(p->state == UNUSED){
-      continue;
-    }
-
-    if(p->pid == pid){
-
-      if(p->state==SLEEPING || p->state ==RUNNING || p->state==RUNNABLE){
-         release(&ptable.lock);
-         return 1;
-      }
-      else{
-        release(&ptable.lock);
-        return 0;
-      }
-
-    }
-  }
-
-  release(&ptable.lock);
-  
-  return 0;
-}
-
-int findchildren(void)
+// Recursive helper to print process hierarchy
+static void
+print_pstree_rec(struct proc *parent, int depth)
 {
   struct proc *p;
-  struct proc *cur = myproc();
-  int count = 0;
+
+  // Print indentation
+  for (int i = 0; i < depth; i++)
+    cprintf("  ");
+
+  // Print current process info
+  cprintf("%d [%s]\n", parent->pid, parent->name);
+
+  // Recursively print all children
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->parent == parent)
+      print_pstree_rec(p, depth + 1);
+  }
+}
+
+// Entry point for pstree syscall
+void
+print_pstree(void)
+{
+  struct proc *p;
 
   acquire(&ptable.lock);
-  cprintf("Children PID's are:\n");
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    if(p->state != UNUSED && p->parent == cur){
-      cprintf("%d\n", p->pid);
-      count++;
+
+  // Start printing from init process (PID 1)
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->pid == 1) {
+      print_pstree_rec(p, 0);
+      break;
+    }
+  }
+
+  release(&ptable.lock);
+}
+
+int
+get_num_syscall(int pid)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->pid == pid) {
+      int count = p->num_syscall;
+      release(&ptable.lock);
+      return count;
     }
   }
   release(&ptable.lock);
-
-  cprintf("No. of Children: %d\n", count);
-  return 0;
+  return -1; // process not found
 }
+int
+get_num_timer_interrupts(int pid)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      int count = p->num_timer_interrupts;
+      release(&ptable.lock);
+      return count;
+    }
+  }
+  release(&ptable.lock);
+  return -1;
+}
+

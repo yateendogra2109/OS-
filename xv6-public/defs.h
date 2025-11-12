@@ -120,6 +120,11 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+void            print_pstree(void);
+int             get_num_syscall(int pid);
+int             get_num_timer_interrupts(int pid);
+
+
 
 // swtch.S
 void            swtch(struct context**, struct context*);
@@ -185,9 +190,8 @@ void            switchuvm(struct proc*);
 void            switchkvm(void);
 int             copyout(pde_t*, uint, void*, uint);
 void            clearpteu(pde_t *pgdir, char *uva);
-int             sys_getchildren(void);
-int             sys_get_proc_state(void);
-int             sys_get_name(void);
+
+
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))

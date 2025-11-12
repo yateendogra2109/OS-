@@ -36,6 +36,9 @@ enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 // Per-process state
 struct proc {
+  // In struct proc (proc.h)
+  int num_syscall;  // count of total system calls made by this process
+  int num_timer_interrupts;   // number of timer interrupts received 
   uint sz;                     // Size of process memory (bytes)
   pde_t* pgdir;                // Page table
   char *kstack;                // Bottom of kernel stack for this process
@@ -48,14 +51,7 @@ struct proc {
   int killed;                  // If non-zero, have been killed
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
-<<<<<<< HEAD
-  char name[16];  
-  char custom_name[16];             // Process name (debugging)
-=======
-  char name[16];               // Process name (debugging)
-void* welcome_func;
-  uint eip_temp;
->>>>>>> 76556f9daa06642e51f91332ba6ee681f8e83608
+  char name[16];             // Process name (debugging)
 };
 
 // Process memory is laid out contiguously, low addresses first:
@@ -63,9 +59,3 @@ void* welcome_func;
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
-
-
-// Some newly added functions
-void find_siblings(void);
-int check_valid(int);
-int findchildren(void);

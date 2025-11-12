@@ -82,6 +82,7 @@ argstr(int n, char **pp)
   return fetchstr(addr, pp);
 }
 
+extern int sys_pstree(void);
 extern int sys_chdir(void);
 extern int sys_close(void);
 extern int sys_dup(void);
@@ -103,16 +104,8 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
-extern int sys_getchildren(void);
-extern int sys_get_proc_state(void);
-extern int sys_fill_proc_name(void);
-extern int sys_get_name(void);
-extern int sys_hello(void);
-extern int sys_helloYou(void);
-extern int sys_getSibling(void);
-extern int sys_welcomeFunction(void);
-extern int sys_welcomeDone(void);
-extern int sys_is_proc_valid(void);
+extern int sys_get_num_syscall(void);
+extern int sys_get_num_timer_interrupts(void);
 
 
 static int (*syscalls[])(void) = {
@@ -137,23 +130,11 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_pstree] sys_pstree,
+[SYS_get_num_syscall]  sys_get_num_syscall,
+[SYS_get_num_timer_interrupts] sys_get_num_timer_interrupts,
 
-/* ---- Your new syscalls ---- */
-[SYS_hello]                     sys_hello,
-[SYS_helloYou]                  sys_helloYou,
-[SYS_getChildren]               sys_getChildren,
-[SYS_getSibling]                sys_getSibling,
-[SYS_pstree]                    sys_pstree,
-[SYS_is_proc_valid]             sys_is_proc_valid,
-[SYS_get_proc_state]            sys_get_proc_state,
-[SYS_fill_proc_name]            sys_fill_proc_name,
-[SYS_get_proc_name]             sys_get_proc_name,
-[SYS_get_num_syscall]           sys_get_num_syscall,
-[SYS_get_num_timer_interrupts]  sys_get_num_timer_interrupts,
-[SYS_welcomeFunction]           sys_welcomeFunction,
-[SYS_welcomeDone]               sys_welcomeDone,
 };
-
 
 void
 syscall(void)
@@ -163,6 +144,8 @@ syscall(void)
 
   num = curproc->tf->eax;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+     // Increment syscall counter before invoking the actual system call
+    curproc->num_syscall++;
     curproc->tf->eax = syscalls[num]();
   } else {
     cprintf("%d %s: unknown sys call %d\n",

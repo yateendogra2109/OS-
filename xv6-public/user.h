@@ -2,7 +2,6 @@ struct stat;
 struct rtcdate;
 
 // system calls
-
 int fork(void);
 int exit(void) __attribute__((noreturn));
 int wait(void);
@@ -24,12 +23,6 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int hello(void);
-int helloYou(char *);
-int getSibling(void);
-int welcomeFunction(void (*func)());
-int welcomeDone(void);
-int is_proc_valid(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -44,10 +37,9 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+int pstree(void);
+int get_num_syscall(int pid);
+int get_num_timer_interrupts(int pid);
 
-void getchildren(void);
 
-int get_proc_state(int pid, char * buf,int size);
 
-int fill_proc_name(int pid, char *name );
-int get_name(int pid, char *buf, int size);
