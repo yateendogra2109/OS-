@@ -103,21 +103,17 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
-<<<<<<< HEAD
 extern int sys_getchildren(void);
 extern int sys_get_proc_state(void);
 extern int sys_fill_proc_name(void);
 extern int sys_get_name(void);
-
-
-=======
 extern int sys_hello(void);
 extern int sys_helloYou(void);
 extern int sys_getSibling(void);
 extern int sys_welcomeFunction(void);
 extern int sys_welcomeDone(void);
 extern int sys_is_proc_valid(void);
->>>>>>> 76556f9daa06642e51f91332ba6ee681f8e83608
+
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -141,21 +137,23 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
-<<<<<<< HEAD
-[SYS_getchildren] sys_getchildren,
-[SYS_get_proc_state]  sys_get_proc_state,
-[SYS_fill_proc_name]  sys_fill_proc_name,
-[SYS_get_name]   sys_get_name,
 
-=======
-[SYS_hello]   sys_hello,
-[SYS_helloYou]   sys_helloYou,
-[SYS_getSibling]   sys_getSibling,
-[SYS_welcomeFunction]   sys_welcomeFunction,
-[SYS_welcomeDone]   sys_welcomeDone,
-[SYS_is_proc_valid] sys_is_proc_valid,
->>>>>>> 76556f9daa06642e51f91332ba6ee681f8e83608
+/* ---- Your new syscalls ---- */
+[SYS_hello]                     sys_hello,
+[SYS_helloYou]                  sys_helloYou,
+[SYS_getChildren]               sys_getChildren,
+[SYS_getSibling]                sys_getSibling,
+[SYS_pstree]                    sys_pstree,
+[SYS_is_proc_valid]             sys_is_proc_valid,
+[SYS_get_proc_state]            sys_get_proc_state,
+[SYS_fill_proc_name]            sys_fill_proc_name,
+[SYS_get_proc_name]             sys_get_proc_name,
+[SYS_get_num_syscall]           sys_get_num_syscall,
+[SYS_get_num_timer_interrupts]  sys_get_num_timer_interrupts,
+[SYS_welcomeFunction]           sys_welcomeFunction,
+[SYS_welcomeDone]               sys_welcomeDone,
 };
+
 
 void
 syscall(void)
