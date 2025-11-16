@@ -154,3 +154,51 @@ int sys_is_proc_valid(){
   return check_valid(pid); //defined in proc.c (because ptable is defined in proc.c)
 
 }
+
+int
+sys_pstree(void)
+{
+  print_pstree();
+  return 0;
+}
+
+int
+sys_get_num_syscall(void)
+{
+  int pid;
+  if(argint(0, &pid) < 0)
+    return -1;
+  return get_num_syscall(pid);
+}
+
+int
+sys_get_num_timer_interrupts(void)
+{
+  int pid;
+  if(argint(0, &pid) < 0)
+    return -1;
+  return get_num_timer_interrupts(pid);
+}
+
+int sys_getChildren(void)
+{
+  find_children();
+  return 0;
+}
+
+int sys_get_proc_state(void)
+{
+  return gproc_state();
+
+}
+
+int sys_fill_proc_name(void)
+{
+  return fproc_name();
+
+}
+
+int sys_get_proc_name(void)
+{
+    return gproc_name();
+}

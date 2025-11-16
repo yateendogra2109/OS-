@@ -112,6 +112,10 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
+  ///
+  p->num_syscall = 0;
+  p->num_timer_interrupts = 0;
+
   return p;
 }
 
@@ -596,5 +600,198 @@ int check_valid(int pid){
 
   release(&ptable.lock);
   
+  return 0;
+}
+
+
+// Recursive helper to print process hierarchy
+static void
+print_pstree_rec(struct proc *parent, int depth)
+{
+  struct proc *p;
+
+  // Print indentation
+  for (int i = 0; i < depth; i++)
+    cprintf("  ");
+
+  // Print current process info
+  cprintf("%d [%s]\n", parent->pid, parent->name);
+
+  // Recursively print all children
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->parent == parent)
+      print_pstree_rec(p, depth + 1);
+  }
+}
+
+// Entry point for pstree syscall
+void
+print_pstree(void)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+
+  // Start printing from init process (PID 1)
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->pid == 1) {
+      print_pstree_rec(p, 0);
+      break;
+    }
+  }
+
+  release(&ptable.lock);
+}
+
+int
+get_num_syscall(int pid)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->pid == pid) {
+      int count = p->num_syscall;
+      release(&ptable.lock);
+      return count;
+    }
+  }
+  release(&ptable.lock);
+  return -1; // process not found
+}
+
+int
+get_num_timer_interrupts(int pid)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      int count = p->num_timer_interrupts;
+      release(&ptable.lock);
+      return count;
+    }
+  }
+  release(&ptable.lock);
+  return -1;
+}
+
+int 
+gproc_state(void)
+{
+  int pid;
+  char *ubuf;
+  int size;
+  struct proc *p;
+  char *state_str="UNKNOWN";
+  int found = 0;
+
+  if ( argint(0,&pid)<0)
+  return 0;
+  if(argint(2,&size)<0)
+  return 0;
+  if(argptr(1,&ubuf,sizeof(char * ))<0)
+  return 0;
+
+  acquire(&ptable.lock);
+  for(p=ptable.proc;p<&ptable.proc[NPROC];p++)
+  {
+    if(p->pid==pid){
+      found=1;
+      switch(p->state)
+      {
+        case UNUSED : state_str="UNUSED";break;
+        case EMBRYO : state_str="EMBRYO";break;
+        case SLEEPING : state_str="SLEEPING";break;
+        case RUNNABLE: state_str="RUNNABLE";break;
+        case RUNNING : state_str="RUNNING";break;
+        case ZOMBIE : state_str="ZOMBIE";break;
+        default :    state_str = "UNKNOWN"; break ;
+        
+      }
+
+      safestrcpy(ubuf,state_str,size);
+    break;
+      }
+  }
+  release(&ptable.lock);
+  if(found)
+  return 1;
+  else return 0;
+
+
+}
+
+int 
+fproc_name(void)
+{
+  int pid ;
+  char *uname;
+  struct proc *p;
+  int found =0;
+  if(argint(0,&pid)<0)
+  return 0;
+   if (argptr(1, &uname, sizeof(char *)) < 0)
+        return 0;
+
+     acquire(&ptable.lock);
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->pid == pid) {
+            safestrcpy(p->custom_name, uname, sizeof(p->custom_name));
+            found = 1;
+            break;
+        }
+    }
+    release ( &ptable.lock);
+    return found;
+
+}
+
+int
+gproc_name(void)
+{
+    int pid;
+    char *ubuf;
+    int size;
+    struct proc *p;
+    int found = 0;
+
+    // Fetch syscall arguments
+    if (argint(0, &pid) < 0)
+        return 0;
+    if (argptr(1, &ubuf, sizeof(char *)) < 0)
+        return 0;
+    if (argint(2, &size) < 0)
+        return 0;
+
+    acquire(&ptable.lock);
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->pid == pid) {
+            safestrcpy(ubuf, p->custom_name, size);
+            found = 1;
+            break;
+        }
+    }
+    release(&ptable.lock);
+
+    return found;
+}
+
+int find_children(void)
+{
+  struct proc *p;
+  struct proc *cur = myproc();
+  int count = 0;
+
+  acquire(&ptable.lock);
+  cprintf("Children PID's are:\n");
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state != UNUSED && p->parent == cur){
+      cprintf("%d\n", p->pid);
+      count++;
+    }
+  }
+  release(&ptable.lock);
+
+  cprintf("No. of Children: %d\n", count);
   return 0;
 }
