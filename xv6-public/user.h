@@ -29,6 +29,13 @@ int getSibling(void);
 int welcomeFunction(void (*func)());
 int welcomeDone(void);
 int is_proc_valid(int);
+int pstree(void);
+int get_num_syscall(int pid);
+int get_num_timer_interrupts(int pid);
+int getChildren(void);
+int get_proc_state(int, char *,int);
+int fill_proc_name(int, char *);
+int get_proc_name(int, char *, int);
 
 // ulib.c
 int stat(const char*, struct stat*);

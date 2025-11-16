@@ -26,3 +26,10 @@
 #define SYS_welcomeFunction 25
 #define SYS_welcomeDone 26
 #define SYS_is_proc_valid 27
+#define SYS_pstree 28
+#define SYS_get_num_syscall  29
+#define SYS_get_num_timer_interrupts 30
+#define SYS_getChildren 31
+#define SYS_get_proc_state 32
+#define SYS_fill_proc_name 33
+#define SYS_get_proc_name 34

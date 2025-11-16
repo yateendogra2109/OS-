@@ -49,8 +49,11 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  char custom_name[16];  
   void* welcome_func;
   uint eip_temp;
+  int num_syscall;  // count of total system calls made by this process
+  int num_timer_interrupts;   // number of timer interrupts received 
 };
 
 // Process memory is laid out contiguously, low addresses first:
@@ -60,6 +63,13 @@ struct proc {
 //   expandable heap
 
 
-// Some newly added functions
+// New added functions
 void find_siblings(void);
 int check_valid(int);
+void print_pstree(void);
+int get_num_syscall(int pid);
+int get_num_timer_interrupts(int pid);
+int find_children(void);
+int gproc_state(void);
+int fproc_name(void);
+int gproc_name(void);
